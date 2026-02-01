@@ -1,21 +1,50 @@
+/* style.css */
+body {
+    background-color: #111;
+    color: white;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    overflow: hidden; /* Prevents bouncing on mobile */
+}
+
+.header {
+    text-align: center;
+    margin-top: 20px;
+}
+
 #container {
     display: flex;
     flex-wrap: wrap;
-    width: 600px; /* Smaller, more compact grid */
-    height: 600px;
+    width: 90vw;      /* Responsive width */
+    height: 90vw;     /* Keep it square */
+    max-width: 500px; /* Limits size on desktop */
+    max-height: 500px;
+    margin-top: 20px;
+    background-color: #222;
+    border: 5px solid #444;
 }
 
 .square {
     box-sizing: border-box;
-    width: 25%; /* 4 columns */
-    height: 25%; /* 4 rows */
-    border: 4px solid #111;
-    background-color: #222;
-    transition: background-color 0.3s ease-out; /* Smooth fade-out */
+    width: 25%;
+    height: 25%;
+    border: 2px solid #111;
+    background-color: #1a1a1a;
+    transition: background-color 0.4s ease-out; /* The "fade" effect */
 }
 
+/* State when the game triggers a square (The Target) */
+.square.target {
+    background-color: #555;
+    border: 2px solid #fff;
+}
+
+/* State when the player successfully hits a square */
 .active {
-    background-color: #00e5ff; /* Cyan glow */
-    box-shadow: 0 0 20px #00e5ff;
-    transition: none; /* Instant light-up when hit */
+    background-color: #00f2ff !important;
+    box-shadow: inset 0 0 20px #00f2ff, 0 0 15px #00f2ff;
+    transition: none; /* Instant light up */
 }
