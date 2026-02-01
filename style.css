@@ -20,8 +20,8 @@ body {
     flex-wrap: wrap;
     width: 90vw;      /* Responsive width */
     height: 90vw;     /* Keep it square */
-    max-width: 500px; /* Limits size on desktop */
-    max-height: 500px;
+    max-width: 1000px; /* Limits size on desktop */
+    max-height: 1000px;
     margin-top: 20px;
     background-color: #222;
     border: 5px solid #444;
@@ -48,3 +48,4 @@ body {
     box-shadow: inset 0 0 20px #00f2ff, 0 0 15px #00f2ff;
     transition: none; /* Instant light up */
 }
+
