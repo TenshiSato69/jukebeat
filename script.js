@@ -10,11 +10,29 @@ function createJubeatGrid() {
         const square = document.createElement("div");
         square.classList.add("square");
 
-        // Mobile Touch
+        // 1. Initial Tap
         square.addEventListener("touchstart", (e) => {
             e.preventDefault();
             handleInput(square);
         });
+
+        // 2. Swiping/Sliding Logic
+        square.addEventListener("touchmove", (e) => {
+            e.preventDefault();
+            // Get the coordinates of the first finger
+            const touch = e.touches[0];
+            // Find the element at those exact coordinates
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+
+            // If the element is a square and wasn't JUST hit, activate it
+            if (target && target.classList.contains("square")) {
+                // We only want to trigger handleInput if the finger 
+                // has entered a NEW square, not while moving inside the same one.
+                if (!target.classList.contains("active")) {
+                    handleInput(target);
+                }
+            }
+        }, { passive: false });
 
         // Desktop Click
         square.addEventListener("mousedown", () => {
