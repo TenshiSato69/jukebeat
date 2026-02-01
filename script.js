@@ -44,22 +44,5 @@ function activateSquare(element) {
     }, 150);
 }
 
-function spawnTarget() {
-    const squares = document.querySelectorAll(".square");
-    const randomIndex = Math.floor(Math.random() * squares.length);
-    const targetSquare = squares[randomIndex];
-
-    // Light up the target for a limited window
-    targetSquare.classList.add("target");
-
-    // The target disappears after 600ms if not hit
-    setTimeout(() => {
-        targetSquare.classList.remove("target");
-    }, 600);
-}
-
 // Initialize
 createJubeatGrid();
-
-// Start the game loop (Spawns a target every 800ms)
-setInterval(spawnTarget, 800);
