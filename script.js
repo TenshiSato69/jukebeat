@@ -1,3 +1,8 @@
+// script.js
+const container = document.querySelector("#container");
+const scoreDisplay = document.querySelector("#score-display");
+let score = 0;
+
 function createJubeatGrid() {
     container.innerHTML = '';
     
@@ -5,37 +10,56 @@ function createJubeatGrid() {
         const square = document.createElement("div");
         square.classList.add("square");
 
-        // Use touchstart for instant response on mobile
+        // Mobile Touch
         square.addEventListener("touchstart", (e) => {
             e.preventDefault();
-            activateSquare(square);
+            handleInput(square);
         });
 
-        // Click support for desktop testing
+        // Desktop Click
         square.addEventListener("mousedown", () => {
-            activateSquare(square);
+            handleInput(square);
         });
 
         container.appendChild(square);
     }
 }
 
+function handleInput(element) {
+    // Check if the square was a target when tapped
+    if (element.classList.contains("target")) {
+        score += 100;
+        scoreDisplay.textContent = `Score: ${score}`;
+        element.classList.remove("target");
+    }
+    
+    // Visual feedback
+    activateSquare(element);
+}
+
 function activateSquare(element) {
     element.classList.add("active");
-    
-    // Remove the class after a short delay to simulate a pulse
     setTimeout(() => {
         element.classList.remove("active");
     }, 150);
 }
 
-function randomPulse() {
+function spawnTarget() {
     const squares = document.querySelectorAll(".square");
     const randomIndex = Math.floor(Math.random() * squares.length);
-    activateSquare(squares[randomIndex]);
+    const targetSquare = squares[randomIndex];
+
+    // Light up the target for a limited window
+    targetSquare.classList.add("target");
+
+    // The target disappears after 600ms if not hit
+    setTimeout(() => {
+        targetSquare.classList.remove("target");
+    }, 600);
 }
 
-// Trigger a random square every 500ms
-setInterval(randomPulse, 500);
-
+// Initialize
 createJubeatGrid();
+
+// Start the game loop (Spawns a target every 800ms)
+setInterval(spawnTarget, 800);
