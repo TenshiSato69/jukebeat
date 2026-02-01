@@ -1,76 +1,89 @@
 const container = document.querySelector("#container");
-const scoreDisplay = document.querySelector("#score-display");
-let score = 0;
-let lastActiveSquare = null; // Prevents "machine gun" firing on one square
+        const scoreDisplay = document.querySelector("#score-display");
+        let score = 0;
 
-function createJubeatGrid() {
-    container.innerHTML = '';
-    
-    for (let i = 0; i < 16; i++) {
-        const square = document.createElement("div");
-        square.classList.add("square");
+        // TRACKER: Keeps track of which square each finger is currently touching
+        // Format: { 0: squareDiv, 1: squareDiv, ... }
+        let activeTouches = {}; 
 
-        // 1. TOUCH START (When you first tap)
-        square.addEventListener("touchstart", (e) => {
-            e.preventDefault(); // Stop tablet quirks
-            handleInput(square);
-            lastActiveSquare = square;
-        }, { passive: false });
+        function createGrid() {
+            container.innerHTML = '';
+            for (let i = 0; i < 16; i++) {
+                const square = document.createElement("div");
+                square.classList.add("square");
+                
+                // 1. TOUCH START (New Finger touches screen)
+                square.addEventListener("touchstart", (e) => {
+                    e.preventDefault();
+                    handleMultiTouch(e);
+                }, { passive: false });
 
-        // 2. TOUCH MOVE (When you slide your finger)
-        square.addEventListener("touchmove", (e) => {
-            e.preventDefault(); // STOP SCROLLING
-            
-            // Get finger position
-            const touch = e.touches[0];
-            
-            // Identify element under finger
-            const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
-            
-            if (!targetElement) return; // Finger went off screen
+                // 2. TOUCH MOVE (Any finger moves)
+                square.addEventListener("touchmove", (e) => {
+                    e.preventDefault();
+                    handleMultiTouch(e);
+                }, { passive: false });
 
-            // Ensure we grabbed a square (and not the container border)
-            const actualSquare = targetElement.closest('.square');
+                // 3. TOUCH END (Finger leaves)
+                square.addEventListener("touchend", (e) => {
+                    e.preventDefault();
+                    // Clean up the tracker for lifted fingers
+                    [...e.changedTouches].forEach(touch => {
+                        delete activeTouches[touch.identifier];
+                    });
+                });
 
-            // Only activate if it's a NEW square
-            if (actualSquare && actualSquare !== lastActiveSquare) {
-                handleInput(actualSquare);
-                lastActiveSquare = actualSquare;
+                container.appendChild(square);
             }
-        }, { passive: false });
+        }
 
-        container.appendChild(square);
-    }
-}
+        function handleMultiTouch(e) {
+            // Loop through EVERY finger currently on the screen
+            [...e.touches].forEach(touch => {
+                const x = touch.clientX;
+                const y = touch.clientY;
+                
+                // Find what is under THIS specific finger
+                const element = document.elementFromPoint(x, y);
 
-// Reset tracker when finger leaves screen
-document.addEventListener("touchend", () => {
-    lastActiveSquare = null;
-});
+                if (element) {
+                    const actualSquare = element.closest('.square');
 
-function handleInput(element) {
-    // Scoring Logic
-    if (element.classList.contains("target")) {
-        score += 100;
-        scoreDisplay.textContent = `Score: ${score}`;
-        element.classList.remove("target");
-        
-        // Green flash for a "Perfect" hit
-        element.style.backgroundColor = "#00ff00";
-    }
-    
-    activateSquare(element);
-}
+                    // If we found a square, and it's DIFFERENT from the last one this specific finger touched
+                    if (actualSquare && activeTouches[touch.identifier] !== actualSquare) {
+                        
+                        triggerSquare(actualSquare);
+                        
+                        // Update the tracker for THIS finger ID
+                        activeTouches[touch.identifier] = actualSquare;
+                    }
+                }
+            });
+        }
 
-function activateSquare(element) {
-    element.classList.add("active");
-    
-    // Turn off light after 150ms
-    setTimeout(() => {
-        element.classList.remove("active");
-        element.style.backgroundColor = ""; // Clear any manual colors
-    }, 150);
-}
+        function triggerSquare(element) {
+            if (element.classList.contains("target")) {
+                score += 100;
+                scoreDisplay.textContent = `Score: ${score}`;
+                element.classList.remove("target");
+                element.classList.add("perfect");
+                setTimeout(() => element.classList.remove("perfect"), 150);
+            } else {
+                element.classList.add("active");
+                setTimeout(() => element.classList.remove("active"), 150);
+            }
+        }
 
-// Start Game
-createJubeatGrid();
+        function spawnTarget() {
+            const squares = document.querySelectorAll(".square");
+            if (squares.length === 0) return;
+            const randomSq = squares[Math.floor(Math.random() * squares.length)];
+            
+            if (!randomSq.classList.contains("target")) {
+                randomSq.classList.add("target");
+                setTimeout(() => randomSq.classList.remove("target"), 800);
+            }
+        }
+
+        createGrid();
+        setInterval(spawnTarget, 700);
